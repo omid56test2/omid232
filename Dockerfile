@@ -43,12 +43,16 @@ RUN apk add --no-cache --update \
   fail2ban \
   bash \
   curl \
-  openssl
+  openssl \
+  nginx \
+  supervisor
 
 COPY --from=builder /app/build/ /app/
 COPY --from=builder /app/DockerEntrypoint.sh /app/
 COPY --from=builder /app/x-ui.sh /usr/bin/x-ui
 COPY --from=builder /app/internal/web/translation /app/internal/web/translation
+COPY nginx/default.conf /etc/nginx/http.d/default.conf
+COPY supervisord.conf /etc/supervisord.conf
 
 
 # Configure fail2ban
@@ -61,11 +65,16 @@ RUN rm -f /etc/fail2ban/jail.d/alpine-ssh.conf \
 RUN chmod +x \
   /app/DockerEntrypoint.sh \
   /app/x-ui \
-  /usr/bin/x-ui
+  /usr/bin/x-ui \
+  /usr/bin/supervisord
 
 ENV XUI_IN_DOCKER="true"
 ENV XUI_MAIN_FOLDER="/app"
 ENV XUI_ENABLE_FAIL2BAN="true"
+# Nginx receives Lucity ingress on 2053; the panel backend listens privately on 8080.
+ENV XUI_PORT="8080"
+# TLS is terminated by Lucity before requests reach this container.
+ENV XUI_SKIP_HSTS="true"
 ENV XUI_DB_TYPE=""
 ENV XUI_DB_DSN=""
 EXPOSE 2053
