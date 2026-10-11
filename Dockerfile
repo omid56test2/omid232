@@ -71,7 +71,7 @@ RUN chmod +x \
 
 # Keep Nginx logs on stdout/stderr and writable temp paths for restricted container runtimes.
 RUN mkdir -p /tmp/nginx/client_body /tmp/nginx/proxy /tmp/nginx/fastcgi /tmp/nginx/uwsgi /tmp/nginx/scgi \
-  && chown -R 100:100 /tmp/nginx \
+  && chown -R 0:0 /tmp/nginx \
   && chmod -R 0700 /tmp/nginx
 
 ENV XUI_IN_DOCKER="true"
