@@ -52,6 +52,7 @@ COPY --from=builder /app/DockerEntrypoint.sh /app/
 COPY --from=builder /app/x-ui.sh /usr/bin/x-ui
 COPY --from=builder /app/internal/web/translation /app/internal/web/translation
 COPY nginx/default.conf /etc/nginx/http.d/default.conf
+COPY nginx/nginx.conf /etc/nginx/nginx.conf
 COPY supervisord.conf /etc/supervisord.conf
 
 
@@ -67,6 +68,10 @@ RUN chmod +x \
   /app/x-ui \
   /usr/bin/x-ui \
   /usr/bin/supervisord
+
+# Keep Nginx logs on stdout/stderr and writable temp paths for restricted container runtimes.
+RUN mkdir -p /tmp/nginx/client_body /tmp/nginx/proxy /tmp/nginx/fastcgi /tmp/nginx/uwsgi /tmp/nginx/scgi \
+  && chmod -R 1777 /tmp/nginx
 
 ENV XUI_IN_DOCKER="true"
 ENV XUI_MAIN_FOLDER="/app"
